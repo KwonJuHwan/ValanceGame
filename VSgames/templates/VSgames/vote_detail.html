@@ -56,17 +56,13 @@
         <!-- Title -->
         <hr>
           <h1 class="mt-4">{{ post.first_question }} vs {{ post.second_question }}</h1>
-
-
-
         <!-- Post Content -->
         <p>{{ post.summary }}</p>
-      {% if post.get_total_vote == 0%}
-        <h1 class="mt-4">0% (0) VS 0% (0) </h1>
-      {% else %}
-          <h1 class="mt-4">{{ post.get_per_first_vote }}% ({{ post.first_sum }}) VS {{ post.get_per_second_vote }}% ({{ post.second_sum}}) </h1>
-      {% endif %}
-      <p> 총 {{ post.get_total_vote }}명이 투표 중!</p>
+        <form method="post" action="{{ post.get_absolute_url }}/voting/add_vote/" >{% csrf_token %}
+            <LABEL><input type="radio" name="question" value="{{ post.first_question }}"> {{ post.first_question }}</LABEL>
+            <LABEL><input type="radio" name="question" value="{{ post.second_question }}"> {{ post.second_question }}</LABEL>
+            <p><input type="submit"  value="Submit"></p>
+        </form>
           <p>
               {% if post.tag.exists %}
                         <i class="fas fa-tags"></i>
@@ -86,19 +82,9 @@
         <div class="card my-4">
                 <h5 class="card-header">댓글 쓰기</h5>
                 <div class="card-body">
-                    <form method="post" action="{{ post.get_absolute_url }}/add_comment/" >
-                        {% csrf_token %}
-                        <div class="form-group">
-                          {{ comment_form | crispy}}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                    <a> 투표 후 이용 가능합니다</a>
                 </div>
         </div>
-            {# set 을 안붙이고 comment 만 붙이면, 값이 없어도 있다고 나옴#}
-            {# 여러개이므로 exist , iterator 사용 #}
-            {# post 입장에서 자신을 fk 로 가지고 있는 모델(comment)에 접근 하는 것을 manager가 도와줌 = 그 중 하나가 set#}
-            {# = post.comment_set.all은 Post를 참조하는 comment들의 집합(comment_set) 모두 #}
           {% if post.comment_set.exists %}
               {% for comment in post.comment_set.iterator %}
                 {# 앵커달기#}
@@ -106,7 +92,7 @@
                     <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
                     <div class="media-body">
                         <h5 class="mt-0">{{ comment.author }} ({{ comment.created_at }})</h5>
-                        <p>{{ comment.content }}</p>
+                        <p>투표 후 이용 가능합니다.</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -149,13 +135,7 @@
                   </div>
               </div>
             </div>
-        <!-- Side Widget -->
-        <div class="card my-4">
-          <h5 class="card-header">Side Widget</h5>
-          <div class="card-body">
-            You can put anything you want inside of these side widgets. They are easy to use, and feature the new Bootstrap 4 card containers!
-          </div>
-        </div>
+
 
       </div>
 
