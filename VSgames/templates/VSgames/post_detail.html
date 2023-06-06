@@ -38,7 +38,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/about_me/">About</a>
+            <a class="nav-link" href="{{ user.pk }}/user">About</a>
           </li>
         </ul>
       </div>
@@ -79,7 +79,7 @@
         <p>Posted on {{ post.created_at }}</p>
           <p class="lead">
           by
-          <a href="#">{{ post.author }}</a>
+          <a href="{{ post.author.pk }}/user">{{ post.author.nickname}}</a>
         </p>
 
         <!-- Comments Form -->

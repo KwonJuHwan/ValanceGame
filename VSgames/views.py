@@ -1,10 +1,11 @@
 import vote as vote
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView
 
 from VSgames.forms import CommentForm
-from VSgames.models import Post, Tag, Vote
+from VSgames.models import Post, Tag, Vote, User
 
 
 class PostList(ListView):
@@ -37,6 +38,23 @@ class PostCreate(LoginRequiredMixin, CreateView):
         context['tags'] = Tag.objects.all()
         return context
 
+    def form_valid(self, form):
+        # 로그인이 되어있다면
+        if self.request.user.is_authenticated:
+            form.instance.author = self.request.user
+            return super(PostCreate, self).form_valid(form)
+        else:
+            return redirect('/')
+
+
+class UserDetail(DetailView):
+    model = User
+
+    def get_context_data(self, **kwargs):
+        context = super(UserDetail, self).get_context_data()
+        context['tags'] = Tag.objects.all()
+        return context
+
 
 def tag_page(request, slug):
     # MtoM 이기 때문에, 다음과 같이 설정해야함
@@ -48,6 +66,20 @@ def tag_page(request, slug):
         'tag': tag,
         'post_list': post_list,
 
+    }
+    return render(request, 'VSgames/post_list.html', context)
+
+
+def post_page(request, pk):
+    author = User.objects.get(pk=pk)
+    post_list = author.post_set.all().order_by('-pk')
+    votes = Vote.objects.all()
+    tags= Tag.objects.all()
+    context = {
+        'usedUser': author,
+        'post_list': post_list,
+        'votes': votes,
+        'tags': tags,
     }
     return render(request, 'VSgames/post_list.html', context)
 
@@ -87,13 +119,13 @@ def add_vote(request, pk):
         votes = Vote.objects.filter(post=post)
         voted = False
         for anyVote in votes:
-            if anyVote.author == request.user :
+            if anyVote.author == request.user:
                 voted = True
                 question = request.POST['question']
                 if anyVote.choice == post.first_question:
-                    post.first_sum -=1
+                    post.first_sum -= 1
                 elif anyVote.choice == post.second_question:
-                    post.second_sum -=1
+                    post.second_sum -= 1
                 post.save()
                 anyVote.delete()
         question = request.POST['question']
@@ -110,3 +142,15 @@ def add_vote(request, pk):
         return redirect(post.get_absolute_url())
     else:
         raise PermissionError
+
+
+def hot_page(request):
+    post_list = Post.objects.all().order_by("-vote")
+    votes = Vote.objects.all()
+    tags = Tag.objects.all()
+    context = {
+        'post_list': post_list,
+        'votes': votes,
+        'tags': tags,
+    }
+    return render(request, 'VSgames/post_list.html', context)

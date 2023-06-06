@@ -11,4 +11,8 @@ urlpatterns = [
     path('<int:pk>/add_comment/', views.add_comment),
     path('<int:pk>/voting/', views.VoteDetail.as_view()),
     path('<int:pk>/voting/add_vote/', views.add_vote),
+    path('<int:pk>/user/', views.UserDetail.as_view()),
+    path('<int:pk>/user/user_post/', views.post_page),
+    path('hot/', views.hot_page),
+
 ]

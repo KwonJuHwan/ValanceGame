@@ -27,7 +27,7 @@
                     </li>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/about_me/">About Me</a>
+                        <a class="nav-link" href="{{ user.pk }}/user">About Me</a>
                     </li>
 {#                    <li class="nav-item dropdown">#}
 {#                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"#}
@@ -87,7 +87,8 @@
             <div class="col-md-8 col-lg-9">
                 <h1>다양한 밸런스 게임들
                 </h1>
-
+                <a href="/" class="btn btn-primary"> 최신순</a>
+                <a href="hot/" class="btn btn-primary"> 인기순 </a>
                 {% for p in post_list %}
                 <!-- Blog Post -->
                 <div class="card mb-4">
@@ -112,7 +113,7 @@
                     </div>
                     <div class="card-footer text-muted">
                         Posted on {{ p.created_at}} by
-                        <a href="#">{{ p.author }}</a>
+                        <a href="{{ p.author.pk }}/user">{{ p.author.nickname }}</a>
                     </div>
 
                 </div>

@@ -26,7 +26,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ user.pk }}/user">About Me</a>
                     </li>
-{#
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -65,28 +64,20 @@
             </div>
         </div>
     </div>
-    <div>
+    <h1> 내 정보 </h1>
     <div class="container my-3">
         <div class="row">
             <div class="col-md-8 col-lg-9">
-                <form method="POST" enctype="application/x-www-form-urlencoded">{% csrf_token %}
-                    <table>
-                {# 라이브러리 설치 + settings.py에 추가 + 템플릿에 적용 #}
-                {# 지정한 field 에 대한 폼 자동생성 #}
-                    {{ form | crispy}}
-                </table>
-                <button type="submit" class="btn btn-primary float-right">
-                    글쓰기
-                </button>
-            </form>
+                <div>
+                    내 닉네임 : {{ user.nickname }}
+                </div>
+                <div>
+                    <a href="user_post/">내가 올린 밸런스 게임 보러가기 </a>
 
+                </div>
             </div>
-            <div class="col-md-4">
-      </div>
         </div>
     </div>
-
-
 
 
 <footer class="py-5 bg-dark">
