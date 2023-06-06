@@ -154,3 +154,9 @@ def hot_page(request):
         'tags': tags,
     }
     return render(request, 'VSgames/post_list.html', context)
+
+
+def delete_post(request,pk):
+    post = Post.objects.get(pk=pk)
+    post.delete()
+    return redirect("/")

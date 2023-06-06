@@ -14,5 +14,6 @@ urlpatterns = [
     path('<int:pk>/user/', views.UserDetail.as_view()),
     path('<int:pk>/user/user_post/', views.post_page),
     path('hot/', views.hot_page),
+    path('<int:pk>/delete_post',views.delete_post)
 
 ]

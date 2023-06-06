@@ -81,7 +81,9 @@
           by
           <a href="{{ post.author.pk }}/user">{{ post.author.nickname}}</a>
         </p>
-
+        {% if user == post.author %}
+            <a href="{{ post.get_absolute_url }}/delete_post" class="btn btn-primary">삭제</a>
+        {% endif %}
         <!-- Comments Form -->
         <div class="card my-4">
                 <h5 class="card-header">댓글 쓰기</h5>
