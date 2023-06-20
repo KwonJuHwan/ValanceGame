@@ -3,20 +3,30 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import QuerySet
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView
-
+from django.db.models import Q
 from VSgames.forms import CommentForm
 from VSgames.models import Post, Tag, Vote, User
 
 
 class PostList(ListView):
     model = Post
-    ordering = '-pk'
+    ordering = ['-pk']
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(PostList, self).get_context_data()
         context['tags'] = Tag.objects.all()
         context['votes'] = Vote.objects.all()
         return context
+
+    def get_queryset(self):
+        qs = Post.objects.all().order_by('-pk')
+        query = self.request.GET.get("qs", None)
+        if query is not None:
+            qs = qs.filter(Q(first_question__contains=query) |
+                           Q(second_question__contains=query) |
+                           Q(summary__contains=query)|
+                           Q(author__username__contains=query))
+        return qs
 
 
 class PostDetail(DetailView):
@@ -74,9 +84,9 @@ def post_page(request, pk):
     author = User.objects.get(pk=pk)
     post_list = author.post_set.all().order_by('-pk')
     votes = Vote.objects.all()
-    tags= Tag.objects.all()
+    tags = Tag.objects.all()
     context = {
-        'usedUser': author,
+        '': author,
         'post_list': post_list,
         'votes': votes,
         'tags': tags,
@@ -122,6 +132,7 @@ def add_vote(request, pk):
             if anyVote.author == request.user:
                 voted = True
                 question = request.POST['question']
+                post.vote_sum -= 1
                 if anyVote.choice == post.first_question:
                     post.first_sum -= 1
                 elif anyVote.choice == post.second_question:
@@ -133,8 +144,10 @@ def add_vote(request, pk):
         vote.post = post
         vote.author = request.user
         vote.choice = question
+        post.vote_sum += 1
         if question == post.first_question:
             post.first_sum += 1
+
         elif question == post.second_question:
             post.second_sum += 1
         post.save()
@@ -145,7 +158,7 @@ def add_vote(request, pk):
 
 
 def hot_page(request):
-    post_list = Post.objects.all().order_by("-vote")
+    post_list = Post.objects.all().order_by("-vote_sum").distinct()
     votes = Vote.objects.all()
     tags = Tag.objects.all()
     context = {
@@ -156,7 +169,8 @@ def hot_page(request):
     return render(request, 'VSgames/post_list.html', context)
 
 
-def delete_post(request,pk):
+def delete_post(request, pk):
     post = Post.objects.get(pk=pk)
     post.delete()
     return redirect("/")
+

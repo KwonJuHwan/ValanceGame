@@ -10,11 +10,14 @@ class Tag(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return f'/tag/{self.slug}/'
+        return f'/vs/tag/{self.slug}/'
 
 
 class User(AbstractUser):
     nickname = models.CharField(max_length=50)
+
+    def get_absolute_url(self):
+        return f'/vs/{self.pk}/user'
 
 
 class Post(models.Model):
@@ -32,16 +35,16 @@ class Post(models.Model):
     # second_sum 두번째 투표 수
     second_sum = models.IntegerField(default=0)
     #  vote_sum 얼마나 많은 사람들이 투표 했는지
-
+    vote_sum = models.IntegerField(default=0)
     # 작성자와 태그 관계 형성하기
     author = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     tag = models.ManyToManyField(Tag, blank=True)
 
     def __str__(self):
-        return f'[{self.pk}]{self.first_question} VS {self.second_question}'
+        return f'/vs/[{self.pk}]{self.first_question} VS {self.second_question}'
 
     def get_absolute_url(self):
-        return f'/{self.pk}'
+        return f'/vs/{self.pk}'
 
     def get_total_vote(self):
         sum = self.first_sum + self.second_sum
@@ -73,13 +76,13 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'{self.author}::{self.content}'
+        return f'/vs/{self.author}::{self.content}'
 
     # comment 로 가기 위한 링크 메소드
     # comment 가 달린 페이지 -> self.post.get_absolute_url()
     # 페이지 중 댓글이 달린 곳으로 이동(앵커) -> #comment-{self.pk}
     def get_absolute_url(self):
-        return f'{self.post.get_absolute_url()}#comment-{self.pk}'
+        return f'/vs/{self.post.get_absolute_url()}#comment-{self.pk}'
 
 
 class Vote(models.Model):
@@ -88,4 +91,4 @@ class Vote(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.author}::{self.post}::{self.choice}'
+        return f'/vs/{self.author}::{self.post}::{self.choice}'

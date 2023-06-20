@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,8 +23,8 @@ SECRET_KEY = 'django-insecure-fj4f2+mz@m5^a@1hs1(_5do10)$5%y%a)^u*n7m=u$v(w@n!xy
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = []
+# 배포 할 라우터 주소 설정
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -36,8 +36,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'VSgames',
+    'main_page',
     'crispy_forms',
     'crispy_bootstrap4',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+
 ]
 
 MIDDLEWARE = [
@@ -48,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'juhwan.urls'
@@ -72,13 +80,23 @@ WSGI_APPLICATION = 'juhwan.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# 내가 DB를 지정할 수 있음
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'mysql.connector.django',
+#         "NAME": "op_2edd55d5_4d8c_4b3e_8b31_66157bcabf2c",
+#         "USER": "bf8f925715687e71",
+#         "PASSWORD": "8913e48582caa5d8",
+#         "HOSTNAME": "115.68.198.187",
+#         "PORT": "13307",
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -113,7 +131,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -123,3 +142,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'VSgames.User'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+# Authentication
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
+                           'allauth.account.auth_backends.AuthenticationBackend',)
+# 사이트 고유 번호
+SITE_ID = 2
+# 검증
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+# 로그인 성공하면 다음 url
+LOGIN_REDIRECT_URL = '/'

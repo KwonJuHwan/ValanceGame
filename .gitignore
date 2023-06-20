@@ -160,3 +160,6 @@ cython_debug/
 .idea/
 .migrations/
 
+#git에선 안보이지만, 가져오긴 함
+_media/
+

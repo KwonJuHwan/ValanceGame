@@ -1,21 +1,41 @@
 <!DOCTYPE html>
 <html>
 {% load static %}
+{% load socialaccount %}
 <head>
     <title>밸런스 게임</title>
         <link rel="stylesheet" href="{% static 'VSgames/bootstrap/bootstrap.min.css' %}" media="screen">
 
     <script src="https://kit.fontawesome.com/726bbd6862.js" crossorigin="anonymous"></script>
-    {% if user.is_authenticated %}
-            <a class="bth btn-info btn-sm float-right" href="/created_post" role="button"> 글쓰기
-            </a>
-    {% endif %}
+    <style>
+        #test_btn1{
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            margin-right:-4px;
+        }
+        #test_btn2{
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            margin-left:-3px;
+        }
+        #btn_group button{
+            border: 1px solid indianred;
+            background-color: rgba(0,0,0,0);
+            color: indianred;
+            padding: 5px;
+        }
+        #btn_group button:hover{
+            color:white;
+            background-color: indianred;
+        }
+    </style>
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="/">밸런스 게임</a>
+
+            <a class="navbar-brand" href="/vs/">밸런스 게임</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -27,19 +47,8 @@
                     </li>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ user.pk }}/user">About Me</a>
+                        <a class="nav-link" href="{{ user.get_absolute_url }}">About Me</a>
                     </li>
-{#                    <li class="nav-item dropdown">#}
-{#                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"#}
-{#                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
-{#                            Dropdown link#}
-{#                        </a>#}
-{#                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">#}
-{#                            <a class="dropdown-item" href="#">Action</a>#}
-{#                            <a class="dropdown-item" href="#">Another action</a>#}
-{#                            <a class="dropdown-item" href="#">Something else here</a>#}
-{#                        </div>#}
-{#                    </li>#}
                 </ul>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -64,11 +73,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <button type="button" class="btn btn-outline-dark btn-block btn-sm "><i class="fab fa-google"></i>&nbsp&nbsp Log in with Google</button>
-                            <button type="button" class="btn btn-outline-dark btn-block btn-sm "><i class="far fa-envelope"></i>&nbsp&nbsp Log in with E-mail</button>
-                        </div>
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-outline-dark btn-block btn-sm"><i class="far fa-envelope"></i>&nbsp&nbsp Sign Up with E-mail</button>
+                           <a role="button" type="button" class="btn btn-outline-dark btn-block btn-sm " href="{% provider_login_url 'google' %}"><i class="fab fa-google"></i>&nbsp&nbsp Log in with Google</a>
                         </div>
                     </div>
                 </div>
@@ -78,30 +83,42 @@
             </div>
         </div>
     </div>
-    <h2>{% if  tag %} postings with tag {{ tag }}
-    {% endif %}
-    </h2>
-
     <div class="container my-3">
         <div class="row">
             <div class="col-md-8 col-lg-9">
                 <h1>다양한 밸런스 게임들
                 </h1>
-                <a href="/" class="btn btn-primary"> 최신순</a>
-                <a href="hot/" class="btn btn-primary"> 인기순 </a>
+                <h2>{% if  tag %} "{{ tag }}"태그로 작성된 밸런스 게임
+                    {% endif %}
+                </h2>
+                {% if not user.is_authenticated %}
+                    <hr>
+                    <p style="font-size: 32px ;color:red"><strong>로그인 후 투표가 가능합니다</strong></p>
+                {% endif %}
+                <hr>
+                <div id="btn_group">
+                    <button id="test_btn1" onclick="location.href='/vs'">최신순</button>
+                    <button id="test_btn2" onclick="location.href='/vs/hot/'">인기순</button>
+                    {% if user.is_authenticated %}
+                        <a class="bth btn-info btn-sm float-right" href="created_post" role="button"> 글쓰기</a>
+                    {% endif %}
+                </div>
+                <hr>
                 {% for p in post_list %}
                 <!-- Blog Post -->
                 <div class="card mb-4">
                     <div class="card-body">
+                        <h5 class="card-text">{{ p.summary }}</h5>
                         <h2 class="card-title">{{ p.first_question}} vs {{ p.second_question}}</h2>
-                        <p class="card-text">{{ p.summary }}</p>
                         {% for vote in votes.iterator %}
                             {% if vote.author == user and vote.post == p%}
                                 <a href="{{ p.get_absolute_url }}" class="btn btn-primary"> 투표 결과 보러가기</a>
                             {% endif %}
                         {% endfor %}
-                        <a href="{{ p.get_absolute_url }}/voting/" class="btn btn-primary"> 내 선택은!</a>
-                        <a> 총 {{ p.get_total_vote }}명이 투표 중!</a>
+                            {% if user.is_authenticated %}
+                                <a href="{{ p.get_absolute_url }}/voting/" class="btn btn-primary"> 내 선택은!</a>
+                            {% endif %}
+                        <a> 총 {{ p.vote_sum }}명이 투표 중!</a>
                         <p>
                             {% if p.tag.exists %}
                                 <i class="fas fa-tags"></i>
@@ -113,38 +130,29 @@
                     </div>
                     <div class="card-footer text-muted">
                         Posted on {{ p.created_at}} by
-                        <a href="{{ p.author.pk }}/user">{{ p.author.nickname }}</a>
+                        <a href="{{ p.author.get_absolute_url }}">{{ p.author.username }}</a>
                     </div>
 
                 </div>
                 {% endfor %}
 
 
-                <!-- Pagination -->
-                <ul class="pagination justify-content-center mb-4">
-                    <li class="page-item">
-                        <a class="page-link" href="#">&larr; Older</a>
-                    </li>
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Newer &rarr;</a>
-                    </li>
-                </ul>
+
 
             </div>
 
             <div class="col-md-4 col-lg-3">
                 <!-- Search Widget -->
-                <div class="card my-4">
-                    <h5 class="card-header">Search</h5>
-                    <div class="card-body">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search for...">
-                            <span class="input-group-btn">
-                                <button class="btn btn-secondary" type="button">Go!</button>
-                            </span>
-                        </div>
+
+
+                <form method='GET' action='{% url "Post:list" %}'>{% csrf_token %}
+                    <div class="card my-4">
+                         <h5 class="card-header">Search</h5>
+                         <input type="text" name='qs' placeholder='Search' value="{{ request.GET.qs }}"/>
+                         <input type="submit" value='Search'/>
                     </div>
-                </div>
+                </form>
+
 
                 <!-- Categories Widget -->
                 <div class="card my-4">

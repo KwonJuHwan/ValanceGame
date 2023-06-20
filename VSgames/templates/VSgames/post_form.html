@@ -2,6 +2,7 @@
 <html>
 {% load static %}
 {% load crispy_forms_tags %}
+{% load socialaccount %}
 <head>
     <title>밸런스 게임</title>
         <link rel="stylesheet" href="{% static 'VSgames/bootstrap/bootstrap.min.css' %}" media="screen">
@@ -12,7 +13,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand" href="/">밸런스 게임</a>
+            <a class="navbar-brand" href="/vs/">밸런스 게임</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
                 aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -24,7 +25,7 @@
                     </li>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ user.pk }}/user">About Me</a>
+                        <a class="nav-link" href="{{ user.get_absolute_url }}">About Me</a>
                     </li>
 {#
                 </ul>
